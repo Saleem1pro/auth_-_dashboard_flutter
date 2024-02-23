@@ -2,11 +2,26 @@
 header('Content-Type: application/json');
 include "db.php";
 
-$id = (int) $_POST['id'];
-$stmt = $db->prepare("DELETE FROM student WHERE id = ?");
-$result = $stmt->execute([$id]);
+if ($_SERVER["REQUEST_METHOD"] == 'POST') {
+    $id = (int) $_POST['id'];
 
-echo json_encode([
-'id' => $id,
-'success' => $result
-]);
+    try {
+        require_once "db.php";
+        $stmt = $db->prepare("DELETE FROM student WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $result = $stmt->execute();
+
+        if ($result) {
+            echo json_encode(array("message" => "Étudiant supprimé avec succès"));
+        } else {
+            echo json_encode(array("message" => "Échec de la suppression de l'étudiant"));
+        }
+
+        $stmt->close();
+        $db->close();
+        exit();
+    } catch (mysqli_sql_exception $e) {
+        die("Query failed: " . $e->getMessage());
+    }
+}
+?>

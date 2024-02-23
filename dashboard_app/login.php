@@ -1,54 +1,48 @@
 <?php 
-  $db = "test_db"; //database name
-  $dbuser = "root"; //database username
-  $dbpassword = "root"; //database password
-  $dbhost = "localhost"; //database host
+ session_start();
+ include "db.php";
 
-  $return["error"] = false;
-  $return["message"] = "";
-  $return["success"] = false;
+ if(isset($_POST['username']) && isset($_POST['password'])){
+    function validate($data){
+        $data=trim($data);
+        $data=stripslashes($data);
+        $data=htmlspecialchars($data);
+        return $data;
+    }
+ }
 
-  $link = mysqli_connect($dbhost, $dbuser, $dbpassword, $db);
+ $username = validate($_POST['username']);
+ $pass = validate($_POST['password']);
 
-  if(isset($_POST["username"]) && isset($_POST["password"])){
-       //checking if there is POST data
+ if(empty($username)){
+    header("Location:login.php?error=Usernaem is required");
+    exit();
+ }
+ else if(empty($pass)){
+    header("Location:login.php?error=Password is required");
+    exit();
+ }
 
-       $username = $_POST["username"];
-       $password = $_POST["password"];
+ $sql = "SELECT * FROM users WHERE username='$username' AND password='$pass'";
 
-       $username = mysqli_real_escape_string($link, $username);
-       //escape inverted comma query conflict from string
+ $result = mysqli_query($db,$sql);
 
-       $sql = "SELECT * FROM user_list WHERE username = '$username'";
-       //building SQL query
-       $res = mysqli_query($link, $sql);
-       $numrows = mysqli_num_rows($res);
-       //check if there is any row
-       if($numrows > 0){
-           //is there is any data with that username
-           $obj = mysqli_fetch_object($res);
-           //get row as object
-           if(md5($password) == $obj->password){
-               $return["success"] = true;
-               $return["uid"] = $obj->user_id;
-               $return["fullname"] = $obj->fullname;
-               $return["address"] = $obj->address;
-           }else{
-               $return["error"] = true;
-               $return["message"] = "Your Password is Incorrect.";
-           }
-       }else{
-           $return["error"] = true;
-           $return["message"] = 'No username found.';
-       }
-  }else{
-      $return["error"] = true;
-      $return["message"] = 'Send all parameters.';
-  }
-
-  mysqli_close($link);
-
-  header('Content-Type: application/json');
-  // tell browser that its a json data
-  echo json_encode($return);
-  //converting array to JSON string
+if(mysqli_num_rows($result) ===1){
+    $row = mysqli_fetch_assoc($result);
+    if($row['username'] ===$username && $row['password'] ===$pass){
+        echo"Logged In Mister ".$username." With Success";
+        $_SESSION['username'] = $row['username'];
+        $_SESSION['name'] = $row['name'];
+        $_SESSION['UserId'] = $row['UserId'];
+        header("Location:list.php");
+        exit();
+    }
+    else{
+        header("Location:login.php?error=Incorrect username or password");
+        exit();
+    }
+}
+else{
+    header("Location: login.php");
+    exit();
+}

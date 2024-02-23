@@ -2,8 +2,13 @@
 header('Content-Type: application/json');
 include "db.php";
 
-$stmt = $db->prepare("SELECT * FROM student");
+$stmt = $db->prepare("SELECT id,name, age FROM student");
 $stmt->execute();
-$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$result = $stmt->get_result();
 
-echo json_encode($result);
+$data = [];
+while ($row = $result->fetch_assoc()) {
+    $data[] = $row;
+}
+
+echo json_encode($data);

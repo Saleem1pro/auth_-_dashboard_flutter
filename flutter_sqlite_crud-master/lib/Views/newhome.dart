@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:sqlite_flutter_crud/Views/edit.dart';
 
 class Newhome extends StatefulWidget {
-  const Newhome({Key? key, required name}) : super(key: key);
+  const Newhome({super.key, required id});
 
   @override
   _NewhomeState createState() => _NewhomeState();
@@ -17,12 +17,12 @@ class _NewhomeState extends State<Newhome> {
   late List<Student> students;
 
   Future<List<Student>> getData() async {
-    var url = Uri.parse("http://localhost/dashboard_app/list.php");
+    var url = Uri.parse("http://192.168.249.1/dashboard_app/list.php");
     var response = await http.get(url);
     var responseBody = jsonDecode(response.body);
     List<Student> studentList = [];
     for (var data in responseBody) {
-      Student student = Student(name: data['name'], age: data['age']);
+      Student student = Student(id: data['id'],name: data['name'], age: data['age']);
       studentList.add(student);
     }
     return studentList;
@@ -46,7 +46,7 @@ class _NewhomeState extends State<Newhome> {
                                 MaterialPageRoute(
                                     builder: (context) => const EditPage()));
                           },
-              child: const Text('edit Page'),
+              child: const Text('CRUD Page'),
             ),
           ],
         ),
@@ -62,6 +62,7 @@ class _NewhomeState extends State<Newhome> {
             } else if (snapshot.hasData) {
               return PaginatedDataTable(
                 columns: const [
+                  DataColumn(label: Text('Id')),
                   DataColumn(label: Text('Name')),
                   DataColumn(label: Text('Age')),
                 ],
@@ -80,10 +81,11 @@ class _NewhomeState extends State<Newhome> {
 }
 
 class Student {
-  final String name;
-  final int age;
+  late int id;
+  late String name;
+  late int age;
 
-  Student({required this.name, required this.age});
+  Student({required this.id,required this.name, required this.age});
 }
 
 class StudentDataSource extends DataTableSource {
@@ -96,6 +98,7 @@ class StudentDataSource extends DataTableSource {
     if (index >= students.length) return null;
     final student = students[index];
     return DataRow(cells: [
+      DataCell(Text(student.id.toString())),
       DataCell(Text(student.name)),
       DataCell(Text(student.age.toString())),
     ]);
