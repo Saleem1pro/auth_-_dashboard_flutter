@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 // ignore: unused_import
-import 'package:sqlite_flutter_crud/JsonModels/students.dart';
 
 class EditPage extends StatefulWidget {
   const EditPage({super.key});

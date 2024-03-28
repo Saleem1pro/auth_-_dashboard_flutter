@@ -27,7 +27,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
   Future userLogin() async {
     //Login API URL
     //use your local IP address instead of localhost or use Web API
-    String url = "http://localhost/dashboard_app/login.php";
+    String url = "http://192.168.249.1/dashboard_app/login.php";
 
     // Showing LinearProgressIndicator.
     setState(() {
